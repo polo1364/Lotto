@@ -91,6 +91,15 @@ body {
   opacity: 0.98;
 }
 
+
+
+body {
+  background-image: url('./9EB36C34-1104-41D7-8A7E-5E42A69F21F3.jpeg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: contain;
+}
 </style>
 
 </style>
@@ -124,53 +133,8 @@ body {
   </table>
 </div>
 
+
 <script>
-    function drawLotto() {
-      const numbers = new Set();
-      while (numbers.size < 6) {
-        numbers.add(Math.floor(Math.random() * 49) + 1);
-      }
-
-      const sortedNumbers = Array.from(numbers).sort((a, b) => a - b);
-      const specialNumber = Math.floor(Math.random() * 49) + 1;
-
-      const container = document.getElementById("lottoNumbers");
-      container.innerHTML = '';
-
-      sortedNumbers.forEach(num => {
-        const ball = document.createElement("div");
-        ball.className = "number";
-        ball.textContent = num;
-        container.appendChild(ball);
-      });
-
-      const special = document.createElement("div");
-      special.className = "number special";
-      special.textContent = specialNumber;
-      container.appendChild(special);
-    }
-  </script>
-
-
-  <div style="margin-top: 50px;">
-    <h2>對獎區</h2>
-    <p>請輸入你買的 6 個號碼（1~49，不可重複）：</p>
-    <input type="number" id="num1" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num2" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num3" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num4" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num5" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num6" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" />
-    
-    
-<div style="margin-top: 10px;">
-  <button onclick="checkWinning()">對獎</button>
-  <button onclick="clearInputs()">清除對獎號碼</button>
-</div>
-
-<div id="result" style="margin-top: 20px; font-size:18px; font-weight:bold;"></div>
-    
-    
-  </div>
-
-  <script>
-    
-
 async function checkWinning() {
   const userNums = [];
   for (let i = 1; i <= 6; i++) {
@@ -222,16 +186,18 @@ async function checkWinning() {
       message = "很可惜沒中獎～再接再厲！";
     }
 
-    // 顯示高亮中獎號碼
     for (let i = 1; i <= 6; i++) {
       const input = document.getElementById("num" + i);
       const val = parseInt(input.value);
       if (drawnNums.includes(val)) {
-        input.style.backgroundColor = "#ffff99"; input.classList.add("flash");  // 黃色
+        input.style.backgroundColor = "#ffff99";
+        input.classList.add("flash");
       } else if (val === specialNum) {
-        input.style.backgroundColor = "#ffb3b3"; input.classList.add("flash");  // 淺紅色
+        input.style.backgroundColor = "#ffb3b3";
+        input.classList.add("flash");
       } else {
-        input.style.backgroundColor = "white"; input.classList.remove("flash");
+        input.style.backgroundColor = "white";
+        input.classList.remove("flash");
       }
     }
 
@@ -240,6 +206,44 @@ async function checkWinning() {
     document.getElementById("result").textContent = "無法取得最新開獎資料";
   }
 }
+
+function clearInputs() {
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById("num" + i);
+    input.value = "";
+    input.style.backgroundColor = "white";
+    input.classList.remove("flash");
+  }
+  document.getElementById("result").textContent = "";
+}
+</script>
+
+
+
+  <div style="margin-top: 50px;">
+    <h2>對獎區</h2>
+    <p>請輸入你買的 6 個號碼（1~49，不可重複）：</p>
+    <input type="number" id="num1" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num2" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num3" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num4" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num5" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num6" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" />
+    
+    
+<div style="margin-top: 10px;">
+  <button onclick="checkWinning()">對獎</button>
+  <button onclick="clearInputs()">清除對獎號碼</button>
+</div>
+
+<div id="result" style="margin-top: 20px; font-size:18px; font-weight:bold;"></div>
+    
+    
+  </div>
+
+  
+<script>
+async function checkWinning() {
+  const userNums = [];
+  for (let i = 1; i <= 6; i++) {
+    const val = parseInt(document.getElementById("num" + i).value);
+    if (!isNaN(val)) userNums.push(val);
+  }
 
   if (userNums.length !== 6 || new Set(userNums).size !== 6 || userNums.some(n => n < 1 || n > 49)) {
     document.getElementById("result").textContent = "請輸入正確的 6 個號碼（1~49 且不可重複）";
@@ -255,108 +259,56 @@ async function checkWinning() {
     let match = userNums.filter(n => drawnNums.includes(n)).length;
     let matchSpecial = userNums.includes(specialNum);
     let message = "";
+    let prize = "";
 
     if (match === 6) {
       message = "恭喜你中頭獎！";
+      prize = "獎金：約新台幣 8,000 萬～上看數億元";
     } else if (match === 5 && matchSpecial) {
       message = "中貳獎（5碼+特別號）！";
+      prize = "獎金：約 100 萬元";
     } else if (match === 5) {
       message = "中參獎（5碼）";
+      prize = "獎金：約 10 萬元";
     } else if (match === 4 && matchSpecial) {
       message = "中肆獎（4碼+特別號）";
+      prize = "獎金：約 4,000 元";
     } else if (match === 4) {
       message = "中伍獎（4碼）";
+      prize = "獎金：約 1,000 元";
     } else if (match === 3 && matchSpecial) {
       message = "中陸獎（3碼+特別號）";
+      prize = "獎金：約 400 元";
     } else if (match === 3) {
       message = "中柒獎（3碼）";
+      prize = "獎金：約 400 元";
     } else if (match === 2 && matchSpecial) {
       message = "中普獎（2碼+特別號）";
+      prize = "獎金：約 400 元";
     } else {
       message = "很可惜沒中獎～再接再厲！";
     }
 
-    document.getElementById("result").textContent = message;
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById("num" + i);
+      const val = parseInt(input.value);
+      if (drawnNums.includes(val)) {
+        input.style.backgroundColor = "#ffff99";
+        input.classList.add("flash");
+      } else if (val === specialNum) {
+        input.style.backgroundColor = "#ffb3b3";
+        input.classList.add("flash");
+      } else {
+        input.style.backgroundColor = "white";
+        input.classList.remove("flash");
+      }
+    }
+
+    document.getElementById("result").innerHTML = message + (prize ? "<br>" + prize : "");
   } catch (e) {
     document.getElementById("result").textContent = "無法取得最新開獎資料";
   }
 }
-      const drawnNums = Array.from(document.querySelectorAll(".number:not(.special)")).map(el => parseInt(el.textContent));
-      const specialNum = parseInt(document.querySelector(".number.special").textContent);
-      
-      if (userNums.length !== 6 || new Set(userNums).size !== 6 || userNums.some(n => n < 1 || n > 49)) {
-        document.getElementById("result").textContent = "請輸入正確的 6 個號碼（1~49 且不可重複）";
-        return;
-      }
-
-      let match = userNums.filter(n => drawnNums.includes(n)).length;
-      let matchSpecial = userNums.includes(specialNum);
-      let message = "";
-
-      if (match === 6) {
-        message = "恭喜你中頭獎！";
-      } else if (match === 5 && matchSpecial) {
-        message = "中貳獎（5碼+特別號）！";
-      } else if (match === 5) {
-        message = "中參獎（5碼）";
-      } else if (match === 4 && matchSpecial) {
-        message = "中肆獎（4碼+特別號）";
-      } else if (match === 4) {
-        message = "中伍獎（4碼）";
-      } else if (match === 3 && matchSpecial) {
-        message = "中陸獎（3碼+特別號）";
-      } else if (match === 3) {
-        message = "中柒獎（3碼）";
-      } else if (match === 2 && matchSpecial) {
-        message = "中普獎（2碼+特別號）";
-      } else {
-        message = "很可惜沒中獎～再接再厲！";
-      }
-
-      document.getElementById("result").textContent = message;
-
-
-for (let i = 1; i <= 6; i++) {
-  const input = document.getElementById("num" + i);
-  input.addEventListener("input", function () {
-    if (this.value.length === 2 && i < 6) {
-      document.getElementById("num" + (i + 1)).focus();
-    }
-  });
-}
-
-    }
-
-    async function loadHistory() {
-      try {
-        const res = await fetch('https://superiorapis.cteam.com.tw/api/lottery/649/history?limit=5');
-        const data = await res.json();
-        const container = document.getElementById('historyList');
-        container.innerHTML = '';
-
-        
-    
-    let table = '<table style="margin: 0 auto; border-collapse: collapse;">';
-    table += '<tr><th style="padding:4px;">期別</th><th style="padding:4px;">號碼</th><th style="padding:4px;">特別號</th></tr>';
-    data.forEach(draw => {
-      const numbers = draw.numbers.map(n => String(n).padStart(2, '0')).join(', ');
-      table += `<tr>
-                  <td style="padding:4px;">${draw.term}</td>
-                  <td style="padding:4px;">${numbers}</td>
-                  <td style="padding:4px; color: red; font-weight:bold;">${draw.special}</td>
-                </tr>`;
-    });
-    table += '</table>';
-    container.innerHTML = table;
-    
-    
-      } catch (e) {
-        document.getElementById('historyList').textContent = '無法載入歷史紀錄，請稍後再試。';
-        console.error('載入歷史紀錄失敗：', e);
-      }
-    }
-
-    loadHistory();
 
 function clearInputs() {
   for (let i = 1; i <= 6; i++) {
@@ -367,76 +319,7 @@ function clearInputs() {
   }
   document.getElementById("result").textContent = "";
 }
+</script>
 
-
-document.getElementById("latestTable").addEventListener("click", function () {
-  document.getElementById("result").textContent = "";
-  document.getElementById("lottoNumbers").innerHTML = "";
-});
-
-
-function generateRandomNumbers() {
-  const nums = new Set();
-  while (nums.size < 6) {
-    nums.add(Math.floor(Math.random() * 49) + 1);
-  }
-  const arr = Array.from(nums);
-  for (let i = 0; i < 6; i++) {
-    document.getElementById("num" + (i + 1)).value = arr[i];
-  }
-  document.getElementById("result").textContent = "";
-}
-
-
-  document.getElementById("result").textContent = "";
-}
-
-
-async function loadLatestDraw() {
-  try {
-    const res = await fetch('https://superiorapis.cteam.com.tw/api/lottery/649/latest');
-    const data = await res.json();
-    const table = `
-      <table style="margin: 0 auto; border-collapse: collapse;">
-        <tr>
-          <th style="padding:4px;">期別</th>
-          <th style="padding:4px;">開獎日期</th>
-          <th style="padding:4px;">號碼</th>
-          <th style="padding:4px;">特別號</th>
-        </tr>
-        <tr>
-          <td style="padding:4px;">第${data.term}期</td>
-          <td style="padding:4px;">${data.date}</td>
-          <td style="padding:4px;">${data.numbers.map(n => String(n).padStart(2, '0')).join(', ')}</td>
-          <td style="padding:4px; color: red; font-weight:bold;">${data.special}</td>
-        </tr>
-      </table>
-    `;
-    document.getElementById('latestTable').innerHTML = table;
-  } catch (e) {
-    document.getElementById('latestTable').textContent = '無法載入開獎資料，請稍後再試。';
-    console.error('載入失敗', e);
-  }
-}
-loadLatestDraw();
-
-
-document.querySelectorAll('input[id^="num"]').forEach(input => {
-  input.addEventListener("focus", function () {
-    document.getElementById("result").textContent = "";
-    document.getElementById("lottoNumbers").innerHTML = "";
-  });
-});
-
-
-document.querySelectorAll('input[id^="num"]').forEach((input, index) => {
-  input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-      checkWinning();
-    }
-  });
-});
-
-  </script>
 </body>
 </html>
