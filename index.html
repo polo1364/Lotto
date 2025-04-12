@@ -51,6 +51,16 @@
     button:hover {
       background-color: #27ae60;
     }
+
+    #history {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .record {
+      margin: 10px 0;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -60,6 +70,15 @@
   <div id="lottoNumbers"></div>
 
   <button onclick="drawLotto()">開獎！</button>
+
+  <div id="history">
+    <h2>前五期開獎記錄</h2>
+    <div class="record">第113000025期：03, 08, 15, 26, 33, 45 + 特別號 17</div>
+    <div class="record">第113000024期：02, 10, 17, 21, 35, 38 + 特別號 12</div>
+    <div class="record">第113000023期：01, 07, 19, 29, 30, 41 + 特別號 09</div>
+    <div class="record">第113000022期：06, 08, 18, 22, 34, 39 + 特別號 02</div>
+    <div class="record">第113000021期：05, 12, 16, 28, 32, 48 + 特別號 06</div>
+  </div>
 
   <script>
     function drawLotto() {
@@ -88,5 +107,28 @@
     }
   </script>
 
+
+  <script>
+    async function loadHistory() {
+      try {
+        const res = await fetch('https://superiorapis.cteam.com.tw/api/lottery/649/history?limit=5');
+        const data = await res.json();
+        const container = document.getElementById('historyList');
+        container.innerHTML = '';
+
+        data.forEach(draw => {
+          const div = document.createElement('div');
+          div.className = 'record';
+          div.textContent = `第${draw.term}期：${draw.numbers.join(', ')} + 特別號 ${draw.special}`;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        document.getElementById('historyList').textContent = '無法載入歷史紀錄，請稍後再試。';
+        console.error('載入歷史紀錄失敗：', e);
+      }
+    }
+
+    loadHistory();
+  </script>
 </body>
 </html>
