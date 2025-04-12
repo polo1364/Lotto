@@ -108,7 +108,65 @@
   </script>
 
 
+  <div style="margin-top: 50px;">
+    <h2>對獎區</h2>
+    <p>請輸入你買的 6 個號碼（1~49，不可重複）：</p>
+    <input type="text" id="userNumbers" placeholder="例如：5,12,18,23,34,41" style="width:300px; font-size:16px;" />
+    <button onclick="checkWinning()">對獎</button>
+    <div id="result" style="margin-top: 20px; font-size:18px; font-weight:bold;"></div>
+    
+    <h2 style="margin-top: 50px;">中獎機率（參考）</h2>
+    <div style="font-size:16px;">
+      <p>頭獎（6碼全中）：1 / 13,983,816</p>
+      <p>貳獎（5碼+特別號）：1 / 2,330,636</p>
+      <p>參獎（5碼）：1 / 55,492</p>
+      <p>肆獎（4碼+特別號）：1 / 22,197</p>
+      <p>伍獎（4碼）：1 / 1,032</p>
+      <p>陸獎（3碼+特別號）：1 / 1,414</p>
+      <p>柒獎（3碼）：1 / 57</p>
+      <p>普獎（2碼+特別號）：1 / 76</p>
+    </div>
+  </div>
+
   <script>
+    function checkWinning() {
+      const input = document.getElementById("userNumbers").value;
+      const userNums = input.split(",").map(x => parseInt(x.trim())).filter(n => !isNaN(n));
+      const drawnNums = Array.from(document.querySelectorAll(".number:not(.special)")).map(el => parseInt(el.textContent));
+      const specialNum = parseInt(document.querySelector(".number.special").textContent);
+      
+      if (userNums.length !== 6 || new Set(userNums).size !== 6 || userNums.some(n => n < 1 || n > 49)) {
+        document.getElementById("result").textContent = "請輸入正確的 6 個號碼（1~49 且不可重複）";
+        return;
+      }
+
+      let match = userNums.filter(n => drawnNums.includes(n)).length;
+      let matchSpecial = userNums.includes(specialNum);
+      let message = "";
+
+      if (match === 6) {
+        message = "恭喜你中頭獎！";
+      } else if (match === 5 && matchSpecial) {
+        message = "中貳獎（5碼+特別號）！";
+      } else if (match === 5) {
+        message = "中參獎（5碼）";
+      } else if (match === 4 && matchSpecial) {
+        message = "中肆獎（4碼+特別號）";
+      } else if (match === 4) {
+        message = "中伍獎（4碼）";
+      } else if (match === 3 && matchSpecial) {
+        message = "中陸獎（3碼+特別號）";
+      } else if (match === 3) {
+        message = "中柒獎（3碼）";
+      } else if (match === 2 && matchSpecial) {
+        message = "中普獎（2碼+特別號）";
+      } else {
+        message = "很可惜沒中獎～再接再厲！";
+      }
+
+      document.getElementById("result").textContent = message;
+    }
+
     async function loadHistory() {
       try {
         const res = await fetch('https://superiorapis.cteam.com.tw/api/lottery/649/history?limit=5');
