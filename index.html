@@ -70,17 +70,31 @@
   <div id="lottoNumbers"></div>
 
   <button onclick="drawLotto()">開獎！</button>
+<div style="margin-top: 20px;">
+  <button onclick="copyWinningNumbers()">套用開獎號碼到對獎欄位</button>
+</div>
 
-  <div id="history">
-    <h2>前五期開獎記錄</h2>
-    <div class="record">第113000025期：03, 08, 15, 26, 33, 45 + 特別號 17</div>
-    <div class="record">第113000024期：02, 10, 17, 21, 35, 38 + 特別號 12</div>
-    <div class="record">第113000023期：01, 07, 19, 29, 30, 41 + 特別號 09</div>
-    <div class="record">第113000022期：06, 08, 18, 22, 34, 39 + 特別號 02</div>
-    <div class="record">第113000021期：05, 12, 16, 28, 32, 48 + 特別號 06</div>
-  </div>
 
-  <script>
+  
+<div id="history" style="margin-top: 40px;">
+  <h2>最新一期開獎記錄</h2>
+  <table style="margin: 0 auto; border-collapse: collapse;">
+    <tr>
+      <th style="padding:4px;">期別</th>
+      <th style="padding:4px;">開獎日期</th>
+      <th style="padding:4px;">號碼</th>
+      <th style="padding:4px;">特別號</th>
+    </tr>
+    <tr>
+      <td style="padding:4px;">第114000043期</td>
+      <td style="padding:4px;">2025/04/11</td>
+      <td style="padding:4px;">06, 10, 11, 17, 23, 32</td>
+      <td style="padding:4px; color: red; font-weight:bold;">27</td>
+    </tr>
+  </table>
+</div>
+
+<script>
     function drawLotto() {
       const numbers = new Set();
       while (numbers.size < 6) {
@@ -115,17 +129,7 @@
     <button onclick="checkWinning()">對獎</button>
     <div id="result" style="margin-top: 20px; font-size:18px; font-weight:bold;"></div>
     
-    <h2 style="margin-top: 50px;">中獎機率（參考）</h2>
-    <div style="font-size:16px;">
-      <p>頭獎（6碼全中）：1 / 13,983,816</p>
-      <p>貳獎（5碼+特別號）：1 / 2,330,636</p>
-      <p>參獎（5碼）：1 / 55,492</p>
-      <p>肆獎（4碼+特別號）：1 / 22,197</p>
-      <p>伍獎（4碼）：1 / 1,032</p>
-      <p>陸獎（3碼+特別號）：1 / 1,414</p>
-      <p>柒獎（3碼）：1 / 57</p>
-      <p>普獎（2碼+特別號）：1 / 76</p>
-    </div>
+    
   </div>
 
   <script>
@@ -189,18 +193,20 @@ for (let i = 1; i <= 6; i++) {
         container.innerHTML = '';
 
         
+    
+    let table = '<table style="margin: 0 auto; border-collapse: collapse;">';
+    table += '<tr><th style="padding:4px;">期別</th><th style="padding:4px;">號碼</th><th style="padding:4px;">特別號</th></tr>';
     data.forEach(draw => {
-      const div = document.createElement('div');
-      div.className = 'record';
-
-      const balls = draw.numbers.map(num => {
-        return `<span class="number">${num}</span>`;
-      }).join('');
-
-      const special = `<span class="number special">${draw.special}</span>`;
-      div.innerHTML = `第${draw.term}期：` + balls + special;
-      container.appendChild(div);
+      const numbers = draw.numbers.map(n => String(n).padStart(2, '0')).join(', ');
+      table += `<tr>
+                  <td style="padding:4px;">${draw.term}</td>
+                  <td style="padding:4px;">${numbers}</td>
+                  <td style="padding:4px; color: red; font-weight:bold;">${draw.special}</td>
+                </tr>`;
     });
+    table += '</table>';
+    container.innerHTML = table;
+    
     
       } catch (e) {
         document.getElementById('historyList').textContent = '無法載入歷史紀錄，請稍後再試。';
@@ -209,6 +215,58 @@ for (let i = 1; i <= 6; i++) {
     }
 
     loadHistory();
+
+function generateRandomNumbers() {
+  const nums = new Set();
+  while (nums.size < 6) {
+    nums.add(Math.floor(Math.random() * 49) + 1);
+  }
+  const arr = Array.from(nums);
+  for (let i = 0; i < 6; i++) {
+    document.getElementById("num" + (i + 1)).value = arr[i];
+  }
+  document.getElementById("result").textContent = "";
+}
+
+
+function copyWinningNumbers() {
+  const numbers = Array.from(document.querySelectorAll(".number:not(.special)"))
+                      .map(el => el.textContent.trim());
+  for (let i = 0; i < 6; i++) {
+    document.getElementById("num" + (i + 1)).value = numbers[i] || '';
+  }
+  document.getElementById("result").textContent = "";
+}
+
+
+async function loadLatestDraw() {
+  try {
+    const res = await fetch('https://superiorapis.cteam.com.tw/api/lottery/649/latest');
+    const data = await res.json();
+    const table = `
+      <table style="margin: 0 auto; border-collapse: collapse;">
+        <tr>
+          <th style="padding:4px;">期別</th>
+          <th style="padding:4px;">開獎日期</th>
+          <th style="padding:4px;">號碼</th>
+          <th style="padding:4px;">特別號</th>
+        </tr>
+        <tr>
+          <td style="padding:4px;">第${data.term}期</td>
+          <td style="padding:4px;">${data.date}</td>
+          <td style="padding:4px;">${data.numbers.map(n => String(n).padStart(2, '0')).join(', ')}</td>
+          <td style="padding:4px; color: red; font-weight:bold;">${data.special}</td>
+        </tr>
+      </table>
+    `;
+    document.getElementById('latestTable').innerHTML = table;
+  } catch (e) {
+    document.getElementById('latestTable').textContent = '無法載入開獎資料，請稍後再試。';
+    console.error('載入失敗', e);
+  }
+}
+loadLatestDraw();
+
 
 document.querySelectorAll('input[id^="num"]').forEach(input => {
   input.addEventListener("focus", function () {
