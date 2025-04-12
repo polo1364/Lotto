@@ -111,7 +111,7 @@
   <div style="margin-top: 50px;">
     <h2>對獎區</h2>
     <p>請輸入你買的 6 個號碼（1~49，不可重複）：</p>
-    <input type="text" id="userNumbers" placeholder="例如：5,12,18,23,34,41" style="width:300px; font-size:16px;" />
+    <input type="number" id="num1" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num2" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num3" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num4" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num5" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" /><input type="number" id="num6" min="1" max="49" style="width:50px; font-size:16px; margin:2px;" />
     <button onclick="checkWinning()">對獎</button>
     <div id="result" style="margin-top: 20px; font-size:18px; font-weight:bold;"></div>
     
@@ -130,8 +130,11 @@
 
   <script>
     function checkWinning() {
-      const input = document.getElementById("userNumbers").value;
-      const userNums = input.split(",").map(x => parseInt(x.trim())).filter(n => !isNaN(n));
+      const userNums = [];
+for (let i = 1; i <= 6; i++) {
+  const val = parseInt(document.getElementById("num" + i).value);
+  if (!isNaN(val)) userNums.push(val);
+}
       const drawnNums = Array.from(document.querySelectorAll(".number:not(.special)")).map(el => parseInt(el.textContent));
       const specialNum = parseInt(document.querySelector(".number.special").textContent);
       
@@ -165,6 +168,17 @@
       }
 
       document.getElementById("result").textContent = message;
+
+
+for (let i = 1; i <= 6; i++) {
+  const input = document.getElementById("num" + i);
+  input.addEventListener("input", function () {
+    if (this.value.length === 2 && i < 6) {
+      document.getElementById("num" + (i + 1)).focus();
+    }
+  });
+}
+
     }
 
     async function loadHistory() {
@@ -174,12 +188,20 @@
         const container = document.getElementById('historyList');
         container.innerHTML = '';
 
-        data.forEach(draw => {
-          const div = document.createElement('div');
-          div.className = 'record';
-          div.textContent = `第${draw.term}期：${draw.numbers.join(', ')} + 特別號 ${draw.special}`;
-          container.appendChild(div);
-        });
+        
+    data.forEach(draw => {
+      const div = document.createElement('div');
+      div.className = 'record';
+
+      const balls = draw.numbers.map(num => {
+        return `<span class="number">${num}</span>`;
+      }).join('');
+
+      const special = `<span class="number special">${draw.special}</span>`;
+      div.innerHTML = `第${draw.term}期：` + balls + special;
+      container.appendChild(div);
+    });
+    
       } catch (e) {
         document.getElementById('historyList').textContent = '無法載入歷史紀錄，請稍後再試。';
         console.error('載入歷史紀錄失敗：', e);
@@ -187,6 +209,23 @@
     }
 
     loadHistory();
+
+document.querySelectorAll('input[id^="num"]').forEach(input => {
+  input.addEventListener("focus", function () {
+    document.getElementById("result").textContent = "";
+    document.getElementById("lottoNumbers").innerHTML = "";
+  });
+});
+
+
+document.querySelectorAll('input[id^="num"]').forEach((input, index) => {
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      checkWinning();
+    }
+  });
+});
+
   </script>
 </body>
 </html>
